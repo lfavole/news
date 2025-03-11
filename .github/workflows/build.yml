@@ -1,0 +1,89 @@
+# Create a workflow that is run on push or on workflow_dispatch.
+# It must have all the options needed to add and delete news.
+name: Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'add'
+        options:
+          - 'add'
+          - 'delete'
+      title:
+        description: 'Title of the news'
+        required: false
+      content:
+        description: 'Content of the news'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add news
+        if: github.event.inputs.action == 'add'
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          from urllib import request
+
+          with request.urlopen('https://raw.githubusercontent.com/${{ github.repository }}/main/news.json') as f:
+            news = json.load(f)
+          news.append({
+            'title': '${{ github.event.inputs.title }}',
+            'content': '${{ github.event.inputs.content }}'
+          })
+
+          Path('news.json').write_text(json.dumps(news))
+
+      - name: Delete news
+        if: github.event.inputs.action == 'delete'
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          from urllib import request
+
+          with request.urlopen('https://raw.githubusercontent.com/${{ github.repository }}/main/news.json') as f:
+            news = json.load(f)
+
+          for i, n in enumerate(news):
+            if n['title'] == '${{ github.event.inputs.title }}':
+              del news[i]
+              break
+
+          Path('news.json').write_text(json.dumps(news))
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
