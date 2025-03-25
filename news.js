@@ -7,9 +7,14 @@ function fasthash(v) {
 }
 
 function addHiddenNews(item) {
-    var news = JSON.parse(localStorage.getItem("news") || "[]");
-    news.push(fasthash(item));
-    localStorage.setItem("news", JSON.stringify(news));
+    if(!item) return;
+    try {
+        var news = JSON.parse(localStorage.getItem("news") || "[]");
+        news.push(fasthash(item));
+        localStorage.setItem("news", JSON.stringify(news));
+    } catch(e) {
+        console.error("Error when adding hidden news:", e);
+    }
 }
 
 function isHiddenNews(item) {
@@ -148,6 +153,11 @@ class LfavoleBanner extends AttributeWatcher {
         } else {
             this.removeAttribute("hidden");
         }
+    }
+
+    delete() {
+        this.hidden = true;
+        setTimeout(() => this.remove(), 400);
     }
 }
 
@@ -329,4 +339,8 @@ document.addEventListener("DOMContentLoaded", function() {
             removeUnnecessaryNews(data);
         })
         .catch(error => console.error("Error fetching news:", error));
+
+    window.addNews = (bannerElement) => {
+        getContainer().shadowRoot.querySelector(".news").appendChild(bannerElement);
+    };
 });
