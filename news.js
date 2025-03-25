@@ -132,9 +132,17 @@ class LfavoleBanner extends AttributeWatcher {
         }
     }
 
+    get "banner-title"() {
+        return this.getAttribute("banner-title");
+    }
+
     set "banner-title"(title) {
         this.setAttribute("banner-title", title);
         this.bannerTitle.textContent = title;
+    }
+
+    get "banner-text"() {
+        return this.getAttribute("banner-text");
     }
 
     set "banner-text"(text) {
@@ -142,8 +150,16 @@ class LfavoleBanner extends AttributeWatcher {
         this.bannerText.textContent = text;
     }
 
+    get "banner-status"() {
+        return this.getAttribute("banner-status");
+    }
+
     set "banner-status"(status) {
         this.setAttribute("banner-status", status);
+    }
+
+    get hidden() {
+        return this.getAttribute("hidden");
     }
 
     set hidden(hidden) {
