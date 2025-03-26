@@ -63,11 +63,17 @@ class LfavoleNews extends HTMLElement {
         news.className = "news";
         this.shadowRoot.appendChild(news);
 
+        var spacer = document.createElement("div");
+        this.shadowRoot.appendChild(spacer);
+
         // Add negative margins to make the element stick on the top, left and right of the page
+        // Also add padding and margin to the spacer to undo the effects of the padding/margin removal
         for (const side of ["Left", "Right", "Top"]) {
             const padding = window.getComputedStyle(document.body)["padding" + side] || "0px";
             const margin = window.getComputedStyle(document.body)["margin" + side] || "0px";
             news.style["margin" + side] = `calc((${padding} + ${margin}) * -1)`;
+            spacer.style["padding" + side] = padding;
+            spacer.style["margin" + side] = margin;
         }
     }
 }
