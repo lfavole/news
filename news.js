@@ -1,4 +1,4 @@
-var scriptURL = document.currentScript.src;
+var scriptFolder = document.currentScript.src.replace(/\/[^\/]*$/, "");
 
 function fasthash(v) {
     // https://github.com/squidfunk/mkdocs-material/blob/74a7835/src/templates/partials/javascripts/base.html#L33
@@ -52,7 +52,7 @@ class LfavoleNews extends HTMLElement {
         // Append styles to shadow root
         const link = document.createElement("link");
         link.rel = "stylesheet";
-        link.href = scriptURL + "/../style.css";
+        link.href = scriptFolder + "/style.css";
         this.shadowRoot.appendChild(link);
 
         this.news = null;
@@ -67,13 +67,12 @@ class LfavoleNews extends HTMLElement {
         this.shadowRoot.appendChild(spacer);
 
         // Add negative margins to make the element stick on the top, left and right of the page
-        // Also add padding and margin to the spacer to undo the effects of the padding/margin removal
+        // Also add padding to the spacer to undo the effects of the padding/margin removal
         for (const side of ["Left", "Right", "Top"]) {
             const padding = window.getComputedStyle(document.body)["padding" + side] || "0px";
             const margin = window.getComputedStyle(document.body)["margin" + side] || "0px";
             news.style["margin" + side] = `calc((${padding} + ${margin}) * -1)`;
-            spacer.style["padding" + side] = padding;
-            spacer.style["margin" + side] = margin;
+            spacer.style["padding" + side] = `calc(${padding} + ${margin})`;
         }
     }
 }
@@ -346,7 +345,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return container;
     }
 
-    fetch("https://lfavole.github.io/news/news.json")
+    fetch(scriptFolder + "/news.json")
         .then(response => response.json())
         .then(data => {
             for(var item of data) {
